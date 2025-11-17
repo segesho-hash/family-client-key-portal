@@ -326,7 +326,8 @@
             saveClients();
             
             // Show success message with portal link
-            const portalLink = `Elite-Family-Client-Portal.html?clientId=${clientId}`;
+           const baseURL = "https://segesho-hash.github.io/family-client-key-portal";
+const portalLink = `${baseURL}/Elite-Family-Client-Portal.html?clientId=${clientId}`;
             alert(`✅ New client "${familyName}" added successfully!\n\nClient ID: ${clientId}\nPortal Link: ${portalLink}\n\nClient has been added to your client list.`);
             
             // Refresh client list and hide form
@@ -479,3 +480,4 @@ ${clients.map(client => `• ${client.familyName} (${client.id}) - ${client.prog
 </body>
 
 </html>
+
