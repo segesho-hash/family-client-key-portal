@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Manager | Elite Family Architecture</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 30px; text-align: center; }
+        .content { padding: 30px; }
+        .client-item { background: #f8f9fa; padding: 20px; margin: 15px 0; border-radius: 10px; border-left: 4px solid #667eea; }
+        .btn { padding: 10px 20px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; margin: 5px; text-decoration: none; display: inline-block; }
+        .btn-primary { background: linear-gradient(45deg, #FF6B6B, #FF8E53); color: white; }
+        .btn-info { background: linear-gradient(45deg, #667eea, #764ba2); color: white; }
+        .btn-success { background: linear-gradient(45deg, #4CAF50, #8BC34A); color: white; }
+        .nav { background: #f8f9fa; padding: 15px; border-bottom: 1px solid #ddd; display: flex; gap: 10px; flex-wrap: wrap; }
+        .progress-bar { background: #e9ecef; height: 10px; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #4CAF50, #8BC34A); height: 100%; border-radius: 10px; }
+        .client-id { background: #e9ecef; padding: 3px 8px; border-radius: 12px; font-size: 0.8em; font-family: monospace; display: inline-block; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👥 Client Manager</h1>
+            <p>Manage all your coaching clients</p>
+        </div>
+        
+        <div class="nav">
+            <a href="Elite-Family-Master-Dashboard.html" class="btn btn-info">📊 Back to Dashboard</a>
+            <a href="Elite-Family-Client-Portal.html" class="btn btn-primary">🚀 Client Portal</a>
+        </div>
+        
+        <div class="content">
+            <h2>Your Clients <span id="clientCount"></span></h2>
+            
+            <div id="clientList">
+                <!-- Clients will be loaded here -->
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+                <a href="Elite-Family-Master-Dashboard.html#clients" class="btn btn-primary">+ Add New Client</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadClients() {
+            const clients = JSON.parse(localStorage.getItem('eliteFamilyClients')) || [];
+            const clientList = document.getElementById('clientList');
+            const clientCount = document.getElementById('clientCount');
+            
+            clientCount.textContent = `(${clients.length})`;
+            
+            if (clients.length === 0) {
+                clientList.innerHTML = '<div class="client-item" style="text-align: center; color: #666;"><p>No clients yet. Click "Add New Client" to get started.</p></div>';
+                return;
+            }
+            
+            clientList.innerHTML = '';
+            
+            clients.forEach(client => {
+                const clientItem = document.createElement('div');
+                clientItem.className = 'client-item';
+                clientItem.innerHTML = `
+                    <h3>${client.familyName} <span class="client-id">${client.id}</span></h3>
+                    <p><strong>Email:</strong> ${client.email}</p>
+                    <p><strong>Phone:</strong> ${client.phone || 'Not provided'}</p>
+                    <p><strong>Joined:</strong> ${new Date(client.joinDate).toLocaleDateString()}</p>
+                    <p><strong>Progress:</strong> ${client.progress}%</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${client.progress}%"></div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <a href="Elite-Family-Client-Portal.html?clientId=${client.id}" class="btn btn-info">Open Client Portal</a>
+                        <button class="btn btn-success" onclick="sendMessage('${client.familyName}')">Send Message</button>
+                        <button class="btn btn-primary" onclick="viewProgress('${client.id}')">View Progress</button>
+                    </div>
+                `;
+                clientList.appendChild(clientItem);
+            });
+        }
+
+        function sendMessage(clientName) {
+            const message = prompt(`Enter your message to ${clientName}:`);
+            if (message) {
+                alert(`✅ Message sent to ${clientName}:\n\n"${message}"`);
+            }
+        }
+        
+        function viewProgress(clientId) {
+            const clients = JSON.parse(localStorage.getItem('eliteFamilyClients')) || [];
+            const client = clients.find(c => c.id === clientId);
+            
+            if (client) {
+                const report = `
+${client.familyName} - Detailed Progress
+─────────────────────────────
+🏆 Overall Progress: ${client.progress}%
+📅 Joined: ${new Date(client.joinDate).toLocaleDateString()}
+📞 Contact: ${client.email} | ${client.phone || 'No phone'}
+📝 Notes: ${client.notes || 'No notes yet.'}
+
+🎯 Portal Link:
+Elite-Family-Client-Portal.html?clientId=${client.id}
+                `;
+                alert(report);
+            }
+        }
+
+        // Load clients when page loads
+        window.onload = loadClients;
+    </script>
+</body>
+</html>

@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Family Architecture | Client Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .portal-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .client-header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .client-welcome {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .client-id-manager {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            text-align: center;
+        }
+        
+        .share-link {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            word-break: break-all;
+            font-family: monospace;
+        }
+        
+        .progress-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            background: white;
+        }
+        
+        .progress-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+        
+        .module-section {
+            padding: 20px;
+        }
+        
+        .module-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .module-card.active {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .module-header {
+            background: #f8f9fa;
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .module-content {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .module-content.expanded {
+            padding: 20px;
+            max-height: 1000px;
+        }
+        
+        .assignment-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .assignment-item.pending {
+            border-left-color: #ffc107;
+        }
+        
+        .assignment-item.overdue {
+            border-left-color: #dc3545;
+        }
+        
+        .assignment-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(45deg, #ffc107, #ff8c00);
+            color: white;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            height: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            border-left: 4px solid #4CAF50;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .submission-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .metrics-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .back-to-dashboard {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            text-decoration: none;
+            color: #667eea;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Back to Dashboard Link -->
+    <a href="Elite-Family-Master-Dashboard.html" class="back-to-dashboard">← Back to Dashboard</a>
+
+    <div class="portal-container">
+        <!-- Client Header -->
+        <div class="client-header">
+            <h1>🏠 Elite Family Architecture</h1>
+            <div class="subtitle">Your Personal Transformation Portal</div>
+        </div>
+        
+        <!-- Welcome Section -->
+        <div class="client-welcome">
+            <div>
+                <h2 id="clientWelcome">Welcome, Family!</h2>
+                <p id="clientPhase">Current Phase: Loading...</p>
+            </div>
+            <div style="text-align: right;">
+                <div id="overallProgress">Overall Progress: 0%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Client ID Section WITH RESET BUTTON -->
+        <div class="client-id-manager">
+            <h3>🔑 Your Client Portal</h3>
+            <div><strong>Client ID:</strong> <span id="displayClientId">Loading...</span></div>
+            <div class="share-link" id="shareLinkContainer">Your personalized portal link will appear here</div>
+            <button class="btn btn-primary" onclick="copyShareLink()">📋 Copy Your Portal Link</button>
+            <!-- RESET BUTTON ADDED HERE -->
+            <button class="btn btn-warning" onclick="resetClientData()" style="margin-top: 10px;">🔄 Reset Client Data</button>
+        </div>
+
+        <!-- Progress Overview -->
+        <div class="progress-overview">
+            <div class="progress-card">
+                <div style="font-size: 2em; font-weight: bold; color: #667eea;" id="completedAssignments">0</div>
+                <div style="color: #666;">Completed Assignments</div>
+            </div>
+            <div class="progress-card">
+                <div style="font-size: 2em; font-weight: bold; color: #28a745;" id="pendingAssignments">0</div>
+                <div style="color: #666;">Pending Assignments</div>
+            </div>
+            <div class="progress-card">
+                <div style="font-size: 2em; font-weight: bold; color: #ffc107;" id="currentStreak">0</div>
+                <div style="color: #666;">Day Streak</div>
+            </div>
+            <div class="progress-card">
+                <div style="font-size: 2em; font-weight: bold; color: #6f42c1;" id="sessionCount">0</div>
+                <div style="color: #666;">Sessions Completed</div>
+            </div>
+        </div>
+        
+        <!-- Transformation Modules -->
+        <div class="module-section">
+            <h3 style="margin-bottom: 20px;">🎯 Your Transformation Journey</h3>
+            <div id="modulesContainer">
+                <!-- Modules will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Metrics Display -->
+        <div class="module-section">
+            <h3 style="margin-bottom: 20px;">📊 Your Progress Metrics</h3>
+            <div class="metrics-display">
+                <div class="metric-card">
+                    <div style="font-size: 1.5em; font-weight: bold; color: #667eea;" id="metricCommunication">0/10</div>
+                    <div style="color: #666;">Communication</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 1.5em; font-weight: bold; color: #28a745;" id="metricRespect">0/10</div>
+                    <div style="color: #666;">Mutual Respect</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 1.5em; font-weight: bold; color: #ffc107;" id="metricHarmony">0/10</div>
+                    <div style="color: #666;">Family Harmony</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 1.5em; font-weight: bold; color: #dc3545;" id="metricConflict">0/10</div>
+                    <div style="color: #666;">Conflict Resolution</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Elite Family Client Portal - With Reset Button
+        let clientData = null;
+        let currentClientId = null;
+
+        // ==================== INITIALIZATION ====================
+        
+        function init() {
+            // Get client ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentClientId = urlParams.get('clientId');
+            
+            if (!currentClientId) {
+                showNotification('❌ No client ID found in URL', 'error');
+                currentClientId = 'demo';
+            }
+            
+            loadClientData();
+            renderClientPortal();
+            setupAutoSave();
+        }
+        
+        function loadClientData() {
+            // FIRST: Try to get client info from Master Dashboard
+            const masterClients = JSON.parse(localStorage.getItem('eliteFamilyClients')) || [];
+            const masterClient = masterClients.find(client => client.id === currentClientId);
+            
+            // SECOND: Try to load existing client portal data
+            const storedPortalData = localStorage.getItem(`eliteClient_${currentClientId}`);
+            
+            if (storedPortalData) {
+                clientData = JSON.parse(storedPortalData);
+                
+                // Update client name from master data if available
+                if (masterClient && clientData.familyName !== masterClient.familyName) {
+                    clientData.familyName = masterClient.familyName;
+                    clientData.overallProgress = masterClient.progress || clientData.overallProgress;
+                    saveClientData();
+                }
+            } else {
+                // Create new client portal data
+                if (masterClient) {
+                    clientData = createClientDataFromMaster(masterClient);
+                } else {
+                    clientData = createDemoClientData();
+                }
+                saveClientData();
+            }
+        }
+        
+        function createClientDataFromMaster(masterClient) {
+            return {
+                clientId: masterClient.id,
+                familyName: masterClient.familyName,
+                joinDate: masterClient.joinDate || new Date().toISOString(),
+                currentPhase: "Foundation",
+                overallProgress: masterClient.progress || 0,
+                streak: 0,
+                metrics: {
+                    communication: { current: Math.min(10, Math.floor((masterClient.progress || 0) / 10 * 4)), target: 10 },
+                    respect: { current: Math.min(10, Math.floor((masterClient.progress || 0) / 10 * 3)), target: 10 },
+                    harmony: { current: Math.min(10, Math.floor((masterClient.progress || 0) / 10 * 5)), target: 10 },
+                    conflict: { current: Math.min(10, Math.floor((masterClient.progress || 0) / 10 * 6)), target: 10 }
+                },
+                modules: [
+                    {
+                        id: 1,
+                        title: "🏛️ Foundation & Awareness",
+                        description: "Build the foundational awareness and set your family transformation goals",
+                        status: "active",
+                        progress: masterClient.progress || 0,
+                        assignments: [
+                            {
+                                id: 101,
+                                title: "Family Vision Statement",
+                                description: "Create a shared vision statement that represents your family's ideal future",
+                                type: "written",
+                                status: (masterClient.progress || 0) > 20 ? "completed" : "pending",
+                                dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                                submission: (masterClient.progress || 0) > 20 ? "Our family is working on creating our vision together..." : "",
+                                submittedDate: (masterClient.progress || 0) > 20 ? new Date().toISOString() : null
+                            },
+                            {
+                                id: 102,
+                                title: "Trigger Identification Journal",
+                                description: "Track and identify the top 3 triggers that lead to conflicts in your home",
+                                type: "journal",
+                                status: "pending",
+                                dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                                submission: ""
+                            }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        title: "🧠 Neural Reset & Pattern Interrupt",
+                        description: "Interrupt old patterns and install new neural pathways for respectful communication",
+                        status: (masterClient.progress || 0) > 50 ? "active" : "locked",
+                        progress: 0,
+                        assignments: [
+                            {
+                                id: 201,
+                                title: "Pause Button Practice",
+                                description: "Practice the 5-second pause technique for 3 days",
+                                type: "practice",
+                                status: "locked",
+                                dueDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                                submission: ""
+                            }
+                        ]
+                    }
+                ],
+                submissions: [],
+                sessionHistory: []
+            };
+        }
+        
+        function createDemoClientData() {
+            const familyNames = ["Smith", "Johnson", "Williams", "Brown", "Davis", "Miller", "Wilson", "Moore"];
+            const randomName = familyNames[Math.floor(Math.random() * familyNames.length)];
+            
+            return {
+                clientId: currentClientId,
+                familyName: `${randomName} Family`,
+                joinDate: new Date().toISOString(),
+                currentPhase: "Foundation",
+                overallProgress: 0,
+                streak: 0,
+                metrics: {
+                    communication: { current: 0, target: 10 },
+                    respect: { current: 0, target: 10 },
+                    harmony: { current: 0, target: 10 },
+                    conflict: { current: 0, target: 10 }
+                },
+                modules: [
+                    {
+                        id: 1,
+                        title: "🏛️ Foundation & Awareness",
+                        description: "Build the foundational awareness and set your family transformation goals",
+                        status: "active",
+                        progress: 0,
+                        assignments: [
+                            {
+                                id: 101,
+                                title: "Family Vision Statement",
+                                description: "Create a shared vision statement that represents your family's ideal future",
+                                type: "written",
+                                status: "pending",
+                                dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                                submission: ""
+                            },
+                            {
+                                id: 102,
+                                title: "Trigger Identification Journal",
+                                description: "Track and identify the top 3 triggers that lead to conflicts in your home",
+                                type: "journal",
+                                status: "pending",
+                                dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                                submission: ""
+                            }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        title: "🧠 Neural Reset & Pattern Interrupt",
+                        description: "Interrupt old patterns and install new neural pathways for respectful communication",
+                        status: "locked",
+                        progress: 0,
+                        assignments: [
+                            {
+                                id: 201,
+                                title: "Pause Button Practice",
+                                description: "Practice the 5-second pause technique for 3 days",
+                                type: "practice",
+                                status: "locked",
+                                dueDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                                submission: ""
+                            }
+                        ]
+                    }
+                ],
+                submissions: [],
+                sessionHistory: []
+            };
+        }
+        
+        // ==================== RENDERING FUNCTIONS ====================
+        
+        function renderClientPortal() {
+            updateWelcomeSection();
+            updateProgressOverview();
+            renderModules();
+            updateMetricsDisplay();
+            updateShareLink();
+        }
+        
+        function updateWelcomeSection() {
+            document.getElementById('clientWelcome').textContent = `Welcome, ${clientData.familyName}!`;
+            document.getElementById('clientPhase').textContent = `Current Phase: ${clientData.currentPhase}`;
+            document.getElementById('overallProgress').textContent = `Overall Progress: ${clientData.overallProgress}%`;
+            document.getElementById('progressFill').style.width = `${clientData.overallProgress}%`;
+        }
+        
+        function updateProgressOverview() {
+            const assignments = getAllAssignments();
+            const completed = assignments.filter(a => a.status === 'completed').length;
+            const pending = assignments.filter(a => a.status === 'pending').length;
+            
+            document.getElementById('completedAssignments').textContent = completed;
+            document.getElementById('pendingAssignments').textContent = pending;
+            document.getElementById('currentStreak').textContent = clientData.streak;
+            document.getElementById('sessionCount').textContent = clientData.sessionHistory.length;
+        }
+        
+        function renderModules() {
+            const container = document.getElementById('modulesContainer');
+            container.innerHTML = clientData.modules.map(module => `
+                <div class="module-card ${module.status === 'active' ? 'active' : ''}">
+                    <div class="module-header" onclick="toggleModule(${module.id})">
+                        <div>
+                            <h4 style="margin: 0;">${module.title}</h4>
+                            <p style="margin: 5px 0 0 0; color: #666;">${module.description}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: bold; color: ${getStatusColor(module.status)}">
+                                ${module.status.toUpperCase()}
+                            </div>
+                            <div class="progress-bar" style="margin: 5px 0; width: 100px;">
+                                <div class="progress-fill" style="width: ${module.progress}%"></div>
+                            </div>
+                            <div style="font-size: 0.9em; color: #666;">${module.progress}% Complete</div>
+                        </div>
+                    </div>
+                    <div class="module-content" id="moduleContent-${module.id}">
+                        ${renderAssignments(module.assignments)}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderAssignments(assignments) {
+            if (assignments.length === 0) {
+                return '<p>No assignments yet. Check back soon!</p>';
+            }
+            
+            return assignments.map(assignment => `
+                <div class="assignment-item ${assignment.status}">
+                    <h5 style="margin: 0 0 10px 0;">${assignment.title}</h5>
+                    <p style="margin: 0 0 10px 0; color: #666;">${assignment.description}</p>
+                    
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9em; color: #666;">
+                        <span>Type: ${assignment.type}</span>
+                        <span>Due: ${new Date(assignment.dueDate).toLocaleDateString()}</span>
+                        <span>Status: <strong>${assignment.status.toUpperCase()}</strong></span>
+                    </div>
+                    
+                    ${assignment.status === 'completed' ? renderSubmission(assignment) : ''}
+                    
+                    ${assignment.status === 'pending' ? renderSubmissionForm(assignment) : ''}
+                    
+                    ${assignment.status === 'locked' ? 
+                        '<p style="color: #dc3545; margin: 10px 0 0 0;"><em>This assignment will unlock when you complete previous modules.</em></p>' : 
+                        ''
+                    }
+                </div>
+            `).join('');
+        }
+        
+        function renderSubmission(assignment) {
+            return `
+                <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                    <h6 style="margin: 0 0 10px 0; color: #28a745;">✅ Submitted on ${new Date(assignment.submittedDate).toLocaleDateString()}</h6>
+                    <p style="margin: 0; font-style: italic;">"${assignment.submission}"</p>
+                    <div class="assignment-actions">
+                        <button class="btn btn-secondary" onclick="editSubmission(${assignment.id})">
+                            Edit Submission
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderSubmissionForm(assignment) {
+            return `
+                <div class="submission-form">
+                    <h6 style="margin: 0 0 15px 0;">Submit Your Work</h6>
+                    <div class="form-group">
+                        <label for="submission-${assignment.id}">Your Response:</label>
+                        <textarea id="submission-${assignment.id}" placeholder="Share your insights, upload your work, or describe what you accomplished...">${assignment.submission || ''}</textarea>
+                    </div>
+                    <div class="assignment-actions">
+                        <button class="btn btn-success" onclick="submitAssignment(${assignment.id})">
+                            Submit Assignment
+                        </button>
+                        <button class="btn btn-secondary" onclick="saveDraft(${assignment.id})">
+                            Save Draft
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function updateMetricsDisplay() {
+            document.getElementById('metricCommunication').textContent = 
+                `${clientData.metrics.communication.current}/${clientData.metrics.communication.target}`;
+            document.getElementById('metricRespect').textContent = 
+                `${clientData.metrics.respect.current}/${clientData.metrics.respect.target}`;
+            document.getElementById('metricHarmony').textContent = 
+                `${clientData.metrics.harmony.current}/${clientData.metrics.harmony.target}`;
+            document.getElementById('metricConflict').textContent = 
+                `${clientData.metrics.conflict.current}/${clientData.metrics.conflict.target}`;
+        }
+        
+        function updateShareLink() {
+            const currentUrl = window.location.href.split('?')[0];
+            const shareUrl = `${currentUrl}?clientId=${currentClientId}`;
+            document.getElementById('shareLinkContainer').textContent = shareUrl;
+            document.getElementById('displayClientId').textContent = currentClientId;
+        }
+
+        // ==================== CLIENT INTERACTIONS ====================
+        
+        function toggleModule(moduleId) {
+            const content = document.getElementById(`moduleContent-${moduleId}`);
+            const module = clientData.modules.find(m => m.id === moduleId);
+            
+            if (module.status === 'locked') {
+                showNotification('🔒 Complete previous modules to unlock this content', 'error');
+                return;
+            }
+            
+            content.classList.toggle('expanded');
+        }
+        
+        function submitAssignment(assignmentId) {
+            const assignment = findAssignment(assignmentId);
+            const textarea = document.getElementById(`submission-${assignmentId}`);
+            
+            if (!textarea.value.trim()) {
+                showNotification('❌ Please provide your submission before submitting', 'error');
+                return;
+            }
+            
+            assignment.status = 'completed';
+            assignment.submission = textarea.value;
+            assignment.submittedDate = new Date().toISOString();
+            
+            // Update progress
+            updateModuleProgress(assignment);
+            updateOverallProgress();
+            updateStreak();
+            
+            // Also update the master dashboard progress
+            updateMasterClientProgress();
+            
+            saveClientData();
+            renderClientPortal();
+            
+            showNotification('✅ Assignment submitted successfully!', 'success');
+        }
+        
+        function saveDraft(assignmentId) {
+            const assignment = findAssignment(assignmentId);
+            const textarea = document.getElementById(`submission-${assignmentId}`);
+            
+            assignment.submission = textarea.value;
+            saveClientData();
+            
+            showNotification('💾 Draft saved successfully', 'success');
+        }
+        
+        function editSubmission(assignmentId) {
+            const assignment = findAssignment(assignmentId);
+            assignment.status = 'pending';
+            saveClientData();
+            renderClientPortal();
+            
+            showNotification('📝 You can now edit your submission', 'success');
+        }
+
+        // ==================== RESET FUNCTION ====================
+        
+        function resetClientData() {
+            if (confirm('Are you sure you want to reset ALL data for this client? This will clear all progress and cannot be undone.')) {
+                localStorage.removeItem(`eliteClient_${currentClientId}`);
+                showNotification('🔄 Client data reset. Refreshing page...', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            }
+        }
+        
+        // ==================== PROGRESS TRACKING ====================
+        
+        function updateModuleProgress(completedAssignment) {
+            const module = clientData.modules.find(m => 
+                m.assignments.some(a => a.id === completedAssignment.id)
+            );
+            
+            if (module) {
+                const totalAssignments = module.assignments.length;
+                const completedAssignments = module.assignments.filter(a => a.status === 'completed').length;
+                module.progress = Math.round((completedAssignments / totalAssignments) * 100);
+                
+                // Unlock next module if this one is complete
+                if (module.progress === 100) {
+                    unlockNextModule(module.id);
+                }
+            }
+        }
+        
+        function updateOverallProgress() {
+            const totalAssignments = getAllAssignments().length;
+            const completedAssignments = getAllAssignments().filter(a => a.status === 'completed').length;
+            clientData.overallProgress = Math.round((completedAssignments / totalAssignments) * 100);
+        }
+        
+        function updateStreak() {
+            // Simple streak logic - increment for each submission day
+            const today = new Date().toDateString();
+            const lastSubmission = clientData.submissions[clientData.submissions.length - 1];
+            
+            if (!lastSubmission || new Date(lastSubmission.date).toDateString() !== today) {
+                clientData.streak++;
+                clientData.submissions.push({
+                    date: new Date().toISOString(),
+                    type: 'assignment'
+                });
+            }
+        }
+        
+        function unlockNextModule(currentModuleId) {
+            const currentIndex = clientData.modules.findIndex(m => m.id === currentModuleId);
+            if (currentIndex < clientData.modules.length - 1) {
+                clientData.modules[currentIndex + 1].status = 'active';
+                clientData.currentPhase = clientData.modules[currentIndex + 1].title;
+                showNotification(`🎉 New module unlocked: ${clientData.modules[currentIndex + 1].title}`, 'success');
+            }
+        }
+        
+        function updateMasterClientProgress() {
+            // Update the master dashboard client progress
+            const masterClients = JSON.parse(localStorage.getItem('eliteFamilyClients')) || [];
+            const clientIndex = masterClients.findIndex(client => client.id === currentClientId);
+            
+            if (clientIndex !== -1) {
+                masterClients[clientIndex].progress = clientData.overallProgress;
+                localStorage.setItem('eliteFamilyClients', JSON.stringify(masterClients));
+            }
+        }
+        
+        // ==================== UTILITY FUNCTIONS ====================
+        
+        function getAllAssignments() {
+            return clientData.modules.flatMap(module => module.assignments);
+        }
+        
+        function findAssignment(assignmentId) {
+            for (let module of clientData.modules) {
+                const assignment = module.assignments.find(a => a.id === assignmentId);
+                if (assignment) return assignment;
+            }
+            return null;
+        }
+        
+        function getStatusColor(status) {
+            const colors = {
+                active: '#28a745',
+                pending: '#ffc107',
+                locked: '#6c757d',
+                completed: '#28a745'
+            };
+            return colors[status] || '#6c757d';
+        }
+        
+        function saveClientData() {
+            localStorage.setItem(`eliteClient_${currentClientId}`, JSON.stringify(clientData));
+        }
+        
+        function setupAutoSave() {
+            // Auto-save every 30 seconds
+            setInterval(saveClientData, 30000);
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : ''} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+        
+        function copyShareLink() {
+            const shareUrl = document.getElementById('shareLinkContainer').textContent;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                showNotification('✅ Portal link copied to clipboard!', 'success');
+            });
+        }
+
+        // Initialize when page loads
+        window.onload = init;
+    </script>
+</body>
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Family Architecture | Master Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #333; min-height: 100vh; padding: 20px; }
+        .dashboard-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden; }
+        .dashboard-header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 30px; text-align: center; }
+        .nav-tabs { display: flex; background: #f8f9fa; border-bottom: 1px solid #ddd; }
+        .nav-tab { padding: 15px 30px; cursor: pointer; border: none; background: none; font-size: 16px; font-weight: bold; transition: all 0.3s ease; }
+        .nav-tab.active { background: white; border-bottom: 3px solid #667eea; color: #667eea; }
+        .tab-content { padding: 30px; display: none; }
+        .tab-content.active { display: block; }
+        .client-card { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px; border-left: 4px solid #667eea; }
+        .btn { padding: 10px 20px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; transition: all 0.3s ease; margin: 5px; text-decoration: none; display: inline-block; }
+        .btn-primary { background: linear-gradient(45deg, #FF6B6B, #FF8E53); color: white; }
+        .btn-success { background: linear-gradient(45deg, #4CAF50, #8BC34A); color: white; }
+        .btn-info { background: linear-gradient(45deg, #667eea, #764ba2); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-small { padding: 5px 10px; font-size: 0.8em; }
+        .progress-bar { background: #e9ecef; height: 10px; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #4CAF50, #8BC34A); height: 100%; border-radius: 10px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .metric-card { background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.1); border-top: 4px solid #667eea; }
+        .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0; }
+        .action-card { background: white; padding: 25px; border-radius: 15px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease; cursor: pointer; }
+        .action-card:hover { transform: translateY(-5px); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        
+        /* Form Styles */
+        .client-form { 
+            background: #fff3cd; 
+            padding: 25px; 
+            border-radius: 15px; 
+            margin: 20px 0; 
+            border-left: 4px solid #ffc107;
+        }
+        .message-form { 
+            background: #d1ecf1; 
+            padding: 25px; 
+            border-radius: 15px; 
+            margin: 20px 0; 
+            border-left: 4px solid #17a2b8;
+            display: none;
+        }
+        
+        /* Client List Styles */
+        .client-list { margin-top: 20px; }
+        .client-item { 
+            background: white; 
+            padding: 20px; 
+            margin: 15px 0; 
+            border-radius: 10px; 
+            border-left: 4px solid #667eea;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .client-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .client-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .client-id { background: #e9ecef; padding: 3px 8px; border-radius: 12px; font-size: 0.8em; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1>🏠 Elite Family Architecture</h1>
+            <p>Master Coaching Dashboard</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('overview')">📊 Overview</button>
+            <button class="nav-tab" onclick="switchTab('clients')">👥 Clients</button>
+            <button class="nav-tab" onclick="switchTab('coaching')">🎯 Coaching Tools</button>
+            <button class="nav-tab" onclick="switchTab('content')">📚 Content Management</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <h2>Dashboard Overview</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div style="font-size: 2em; font-weight: bold; color: #667eea;" id="totalClients">1</div>
+                    <div>Active Clients</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 2em; font-weight: bold; color: #28a745;" id="avgProgress">25%</div>
+                    <div>Avg. Progress</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 2em; font-weight: bold; color: #ffc107;" id="pendingAssignments">3</div>
+                    <div>Pending Assignments</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 2em; font-weight: bold; color: #dc3545;" id="overdueItems">0</div>
+                    <div>Overdue Items</div>
+                </div>
+            </div>
+
+            <h3 style="margin: 30px 0 15px 0;">Quick Actions</h3>
+            <div class="quick-actions">
+                <a href="Elite-Family-Client-Manager.html" style="text-decoration: none; color: inherit;">
+                    <div class="action-card">
+                        <div style="font-size: 3em;">👤</div>
+                        <h3>Manage Clients</h3>
+                        <p>View and manage all client accounts</p>
+                    </div>
+                </a>
+                <a href="Elite-Family-Client-Portal.html" style="text-decoration: none; color: inherit;">
+                    <div class="action-card">
+                        <div style="font-size: 3em;">🚀</div>
+                        <h3>Client Portal</h3>
+                        <p>Access the client transformation portal</p>
+                    </div>
+                </a>
+                <div class="action-card" onclick="switchTab('content')">
+                    <div style="font-size: 3em;">📝</div>
+                    <h3>Content Manager</h3>
+                    <p>Edit assignments and modules</p>
+                </div>
+                <div class="action-card" onclick="generateReports()">
+                    <div style="font-size: 3em;">📊</div>
+                    <h3>Progress Reports</h3>
+                    <p>Generate client progress reports</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clients Tab -->
+        <div id="clients" class="tab-content">
+            <h2>Client Management</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3>Your Clients</h3>
+                <button class="btn btn-primary" onclick="showClientForm()">+ Add New Client</button>
+            </div>
+            
+            <!-- Client List (Dynamic) -->
+            <div id="clientList" class="client-list">
+                <!-- Clients will be loaded here automatically -->
+            </div>
+
+            <!-- Add Client Form -->
+            <div id="clientForm" class="client-form" style="display: none;">
+                <h3>➕ Add New Client</h3>
+                <form onsubmit="saveNewClient(event)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+                        <div class="form-group">
+                            <label>Family Name *</label>
+                            <input type="text" id="familyName" required placeholder="Enter family name">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Email *</label>
+                            <input type="email" id="clientEmail" required placeholder="Enter email address">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="clientPhone" placeholder="Enter phone number">
+                        </div>
+                        <div class="form-group">
+                            <label>Start Date *</label>
+                            <input type="date" id="startDate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="clientNotes" placeholder="Any initial notes about this client..."></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-success">Save Client</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideClientForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Message Form -->
+            <div id="messageForm" class="message-form">
+                <h3>💬 Send Message</h3>
+                <form onsubmit="sendClientMessage(event)">
+                    <div class="form-group">
+                        <label>To:</label>
+                        <input type="text" id="messageTo" readonly style="background: #f8f9fa;">
+                    </div>
+                    <div class="form-group">
+                        <label>Subject *</label>
+                        <input type="text" id="messageSubject" required placeholder="Message subject...">
+                    </div>
+                    <div class="form-group">
+                        <label>Message *</label>
+                        <textarea id="messageContent" required style="min-height: 120px;" placeholder="Type your message here..."></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-success">Send Message</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideMessageForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Coaching Tools Tab -->
+        <div id="coaching" class="tab-content">
+            <h2>Coaching Tools</h2>
+            <div class="quick-actions">
+                <div class="action-card" onclick="alert('Session planning calendar would open here.')">
+                    <div style="font-size: 3em;">📅</div>
+                    <h3>Session Planner</h3>
+                    <p>Plan coaching sessions</p>
+                </div>
+                <div class="action-card" onclick="alert('Assignment creation form would open here.')">
+                    <div style="font-size: 3em;">✏️</div>
+                    <h3>Assignment Creator</h3>
+                    <p>Create new assignments</p>
+                </div>
+                <div class="action-card" onclick="alert('Progress tracking dashboard would open here.')">
+                    <div style="font-size: 3em;">📈</div>
+                    <h3>Progress Tracker</h3>
+                    <p>Track client metrics</p>
+                </div>
+                <div class="action-card" onclick="alert('Communication interface would open here.')">
+                    <div style="font-size: 3em;">💬</div>
+                    <h3>Communication Hub</h3>
+                    <p>Client messaging system</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Management Tab -->
+        <div id="content" class="tab-content">
+            <h2>Content Management</h2>
+            <div class="client-card">
+                <h3>Transformation Modules</h3>
+                <p>Edit the modules and assignments that clients see in their portal.</p>
+                <button class="btn btn-info" onclick="alert('Module editor would open here.')" style="margin-top: 15px;">Edit Modules</button>
+            </div>
+            
+            <div class="client-card">
+                <h3>Client Portal Settings</h3>
+                <p>Customize the client portal appearance and functionality.</p>
+                <button class="btn btn-info" onclick="alert('Portal customization interface would open here.')" style="margin-top: 15px;">Customize Portal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links Footer -->
+    <div style="position: fixed; bottom: 20px; right: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000;">
+        <strong>Quick Links:</strong><br>
+        <a href="Elite-Family-Client-Portal.html" style="color: #667eea; text-decoration: none;">🚀 Client Portal</a><br>
+        <a href="Elite-Family-Client-Manager.html" style="color: #667eea; text-decoration: none;">👥 Client Manager</a>
+    </div>
+
+    <script>
+        // Client Data Storage
+        let clients = JSON.parse(localStorage.getItem('eliteFamilyClients')) || [
+            {
+                id: 'FAM-A1B2-C3D4',
+                familyName: 'Smith Family',
+                email: 'smith@example.com',
+                phone: '(555) 123-4567',
+                startDate: '2024-03-01',
+                notes: 'Initial assessment completed',
+                progress: 25,
+                joinDate: '2024-03-01',
+                status: 'active'
+            }
+        ];
+
+        // Tab Management
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'clients') {
+                loadClientList();
+                updateDashboardMetrics();
+            }
+        }
+
+        // Client Management Functions
+        function showClientForm() {
+            document.getElementById('clientForm').style.display = 'block';
+            document.getElementById('startDate').valueAsDate = new Date();
+            document.getElementById('clientForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideClientForm() {
+            document.getElementById('clientForm').style.display = 'none';
+            document.getElementById('clientForm').reset();
+        }
+
+        function saveNewClient(event) {
+            event.preventDefault();
+            
+            const familyName = document.getElementById('familyName').value;
+            const email = document.getElementById('clientEmail').value;
+            const phone = document.getElementById('clientPhone').value;
+            const startDate = document.getElementById('startDate').value;
+            const notes = document.getElementById('clientNotes').value;
+            
+            // Generate client ID
+            const clientId = 'FAM-' + Math.random().toString(36).substr(2, 4).toUpperCase() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+            
+            // Create new client object
+            const newClient = {
+                id: clientId,
+                familyName: familyName,
+                email: email,
+                phone: phone,
+                startDate: startDate,
+                notes: notes,
+                progress: 0,
+                joinDate: new Date().toISOString().split('T')[0],
+                status: 'active'
+            };
+            
+            // Add to clients array
+            clients.push(newClient);
+            
+            // Save to localStorage
+            saveClients();
+            
+            // Show success message with portal link
+            const portalLink = `Elite-Family-Client-Portal.html?clientId=${clientId}`;
+            alert(`✅ New client "${familyName}" added successfully!\n\nClient ID: ${clientId}\nPortal Link: ${portalLink}\n\nClient has been added to your client list.`);
+            
+            // Refresh client list and hide form
+            loadClientList();
+            updateDashboardMetrics();
+            hideClientForm();
+        }
+
+        function loadClientList() {
+            const clientList = document.getElementById('clientList');
+            clientList.innerHTML = '';
+            
+            if (clients.length === 0) {
+                clientList.innerHTML = '<div class="client-item" style="text-align: center; color: #666;"><p>No clients yet. Add your first client using the form below.</p></div>';
+                return;
+            }
+            
+            clients.forEach(client => {
+                const clientItem = document.createElement('div');
+                clientItem.className = 'client-item';
+                clientItem.innerHTML = `
+                    <div class="client-header">
+                        <h4>${client.familyName}</h4>
+                        <span class="client-id">${client.id}</span>
+                    </div>
+                    <p><strong>Email:</strong> ${client.email}</p>
+                    <p><strong>Phone:</strong> ${client.phone || 'Not provided'}</p>
+                    <p><strong>Joined:</strong> ${new Date(client.joinDate).toLocaleDateString()}</p>
+                    <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+                        <span>Progress: ${client.progress}%</span>
+                        <div class="progress-bar" style="flex: 1;">
+                            <div class="progress-fill" style="width: ${client.progress}%"></div>
+                        </div>
+                    </div>
+                    <div class="client-actions">
+                        <a href="Elite-Family-Client-Portal.html?clientId=${client.id}" class="btn btn-info btn-small">View Portal</a>
+                        <button class="btn btn-success btn-small" onclick="showMessageForm('${client.familyName}')">Send Message</button>
+                        <button class="btn btn-primary btn-small" onclick="viewClientProgress('${client.id}')">Progress Report</button>
+                        <button class="btn btn-secondary btn-small" onclick="editClient('${client.id}')">Edit</button>
+                        <button class="btn btn-small" style="background: #dc3545; color: white;" onclick="deleteClient('${client.id}')">Delete</button>
+                    </div>
+                `;
+                clientList.appendChild(clientItem);
+            });
+        }
+
+        function showMessageForm(clientName) {
+            document.getElementById('messageTo').value = clientName;
+            document.getElementById('messageForm').style.display = 'block';
+            document.getElementById('messageForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideMessageForm() {
+            document.getElementById('messageForm').style.display = 'none';
+            document.getElementById('messageForm').reset();
+        }
+
+        function sendClientMessage(event) {
+            event.preventDefault();
+            
+            const to = document.getElementById('messageTo').value;
+            const subject = document.getElementById('messageSubject').value;
+            const content = document.getElementById('messageContent').value;
+            
+            alert(`✅ Message sent to ${to}!\n\nSubject: ${subject}\n\nMessage: ${content}`);
+            
+            hideMessageForm();
+        }
+
+        function viewClientProgress(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (client) {
+                const report = `
+🏠 ${client.familyName} Progress Report
+─────────────────────────────
+• Client ID: ${client.id}
+• Overall Progress: ${client.progress}%
+• Status: ${client.status}
+• Joined: ${new Date(client.joinDate).toLocaleDateString()}
+
+📞 Contact Info:
+• Email: ${client.email}
+• Phone: ${client.phone || 'Not provided'}
+
+📝 Notes:
+${client.notes || 'No notes yet.'}
+
+🎯 Portal Link:
+Elite-Family-Client-Portal.html?clientId=${client.id}
+                `;
+                alert(report);
+            }
+        }
+
+        function editClient(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (client) {
+                // For now, just show an alert - in a real app, you'd open an edit form
+                alert(`Edit client: ${client.familyName}\n\nThis would open an edit form in a real application.`);
+            }
+        }
+
+        function deleteClient(clientId) {
+            if (confirm('Are you sure you want to delete this client? This action cannot be undone.')) {
+                clients = clients.filter(c => c.id !== clientId);
+                saveClients();
+                loadClientList();
+                updateDashboardMetrics();
+                alert('Client deleted successfully.');
+            }
+        }
+
+        function saveClients() {
+            localStorage.setItem('eliteFamilyClients', JSON.stringify(clients));
+        }
+
+        function updateDashboardMetrics() {
+            document.getElementById('totalClients').textContent = clients.length;
+            
+            const totalProgress = clients.reduce((sum, client) => sum + client.progress, 0);
+            const avgProgress = clients.length > 0 ? Math.round(totalProgress / clients.length) : 0;
+            document.getElementById('avgProgress').textContent = avgProgress + '%';
+            
+            // Update other metrics as needed
+            document.getElementById('pendingAssignments').textContent = clients.length * 3; // Example calculation
+        }
+
+        // Reports
+        function generateReports() {
+            const report = `
+📊 Elite Family Architecture - Client Report
+Generated: ${new Date().toLocaleDateString()}
+─────────────────────────────
+Total Clients: ${clients.length}
+Average Progress: ${clients.reduce((sum, c) => sum + c.progress, 0) / clients.length}%
+
+Client List:
+${clients.map(client => `• ${client.familyName} (${client.id}) - ${client.progress}%`).join('\n')}
+            `;
+            alert(report);
+        }
+
+        // Initialize dashboard
+        window.onload = function() {
+            loadClientList();
+            updateDashboardMetrics();
+            console.log('Master Dashboard loaded successfully');
+        };
+    </script>
+</body>
+</html>
